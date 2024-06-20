@@ -68,52 +68,34 @@ public class PrescriptionsController: ControllerBase
     public async Task<IActionResult> GetPatient(int id)
     {
         Patient patient = await service.getPatient(id);
-        
-        List <Prescription> prescriptions = await service.getPrescriptionsOfPatient(id);
-        List<GetPrescriptionDto> prescriptionDtos = new List<GetPrescriptionDto>();
-        for (int i = 0; i < prescriptions.Count; i++)
-        {
-            Doctor doctor = await service.getDoctor(prescriptions[i].IdDoctor);
-            DoctorDto doctorDto = new DoctorDto()
-            {
-                IdDoctor = doctor.IdDoctor,
-                FirstName = doctor.FirstName,
-                LastName = doctor.LastName,
-                Email = doctor.Email
-            };
-            
-            List<Medicament> medicaments = await service.getMedicamentsOfPrescription(prescriptions[i].IdPrescription);
-            List<MedicamentDto> medicamentDtos = new List<MedicamentDto>();
-            for (int j = 0; j < medicaments.Count; j++)
-            {
-                medicamentDtos.Add(new MedicamentDto()
-                {
-                    IdMedicament = medicaments[i].IdMedicament,
-                    Name = medicaments[i].Name,
-                    Description = medicaments[i].Description,
-                    Type = medicaments[i].Type
-                });
-            }
-            
-            prescriptionDtos.Add(new GetPrescriptionDto()
-            {
-                IdPrescription = prescriptions[i].IdPrescription,
-                date = prescriptions[i].Date,
-                dueDate = prescriptions[i].DueDate,
-                doctor = doctorDto,
-                medicaments = medicamentDtos
-            });
-        }
-        
-        var patientDto = new GetPatientDto()
+        return Ok(new GetPatientDto()
         {
             IdPatient = patient.IdPatient,
             FirstName = patient.FirstName,
             LastName = patient.LastName,
             BirthDate = patient.BirthDate,
-            prescriptions = prescriptionDtos
-        };
-        return Ok(patientDto);
+            prescriptions = patient.Prescriptions.Select(pr => new GetPrescriptionDto()
+            {
+                IdPrescription = pr.IdPrescription,
+                date = pr.Date,
+                dueDate = pr.DueDate,
+                doctor = new DoctorDto()
+                {
+                    IdDoctor = pr.Doctor.IdDoctor,
+                    FirstName = pr.Doctor.FirstName,
+                    LastName = pr.Doctor.LastName,
+                    Email = pr.Doctor.Email
+                },
+                medicaments = pr.PrescriptionMedicaments.Select(prm => new MedicamentDto()
+                {
+                    IdMedicament = prm.IdMedicament,
+                    Name = prm.Medicament.Name,
+                    Description = prm.Medicament.Description,
+                    Type = prm.Medicament.Type
+                }).ToList()
+            }).OrderBy(p => p.dueDate)
+                .ToList()
+        });
     }
     
 }

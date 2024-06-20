@@ -37,7 +37,14 @@ public class DbService: IDbService
 
     public async Task<Patient> getPatient(int id)
     {
-        return _context.Patients.Find(id);
+        return await _context.Patients
+            .Include(p => p.Prescriptions)
+            .ThenInclude(p => p.PrescriptionMedicaments)
+            .ThenInclude(p => p.Medicament)
+            .Include(p => p.Prescriptions)
+            .ThenInclude(p => p.Doctor)
+            .Where(p => p.IdPatient == id)
+            .FirstAsync();
     }
     
     public async Task<Doctor> getDoctor(int id)

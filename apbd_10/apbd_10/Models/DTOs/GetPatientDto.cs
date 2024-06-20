@@ -8,7 +8,7 @@ public class GetPatientDto
     public string FirstName { get; set; }
     public string LastName { get; set; }
     public DateTime BirthDate { get; set; }
-    public List<GetPrescriptionDto> prescriptions { get; set; }
+    public ICollection<GetPrescriptionDto> prescriptions { get; set; }
     
 }
 
@@ -17,6 +17,6 @@ public class GetPrescriptionDto
     public int IdPrescription { get; set; }
     public DateTime date { get; set; }
     public DateTime dueDate { get; set; }
-    public List<MedicamentDto> medicaments { get; set; }
+    public ICollection<MedicamentDto> medicaments { get; set; }
     public DoctorDto doctor { get; set; }
 }
